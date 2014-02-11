@@ -1,0 +1,26 @@
+
+body {
+    font: 10px sans-serif;
+    background: #333;
+}
+
+.arc path {
+    stroke: #fff;
+    stroke-width: 2px;
+}
+
+.arc grid {
+    stroke: #fff;
+    stroke-width: 1;
+    stroke-dasharray: 5,5;
+}
+
+.arc text {
+    fill:#fff;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.arc line {
+    stroke: #fff;
+}
