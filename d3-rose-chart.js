@@ -2,8 +2,8 @@
  * Created by jmcmicha on 2/11/14.
  */
 
-var width = 768,
-    height = 768,
+var width = 950,
+    height = 950,
     radius = Math.min(width, height) / 2 - 50,
     numTicks = 5,
     sdat = [];
@@ -16,16 +16,14 @@ var color = d3.scale.category20();
 
 var arc = d3.svg.arc()
     .outerRadius(function(d) {
-        var oRad = 50 + (radius - 50) * d.data.percent / 100;
-        console.log(["radius:", radius].join(" "));
-        console.log(["outerRadius:", oRad].join(" "));
+        var oRad = 50 + (radius - 50) * d.data.AGE/ 100;
         return oRad;
     })
     .innerRadius(20);
 
 var pie = d3.layout.pie()
     .sort(null)
-    .value(function(d) { return d.population; });
+    .value(function(d) { return d.NORMAL_VAF; });
 
 var grid = d3.svg.area.radial()
     .radius(150);
@@ -42,24 +40,26 @@ for (i=0; i<=numTicks; i++) {
 
 console.log(["sdat:", sdat].join(" "));
 
-d3.csv("data.csv", function(error, data) {
-
+d3.csv("samples-data-1.csv", function(error, data) {
+    data = _.map(_.sortBy(data, ["GENE", "AGE"], _.values));
     var g = svg.selectAll(".arc")
         .data(pie(data))
         .enter().append("g")
+        .attr("data-legend",function(d) { return d.GENE})
         .attr("class", "arc");
 
     g.append("path")
         .attr("d", arc)
-        .style("fill", function(d) { return color(d.data.age); });
+        .style("fill", function(d) { return color(d.data.GENE); });
 
     g.append("text")
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
-        .text(function(d) { return d.data.age; });
+        .text(function(d) { return d.data.GENE; });
 
     addCircleAxes();
+   //  addLegend();
 });
 
 addCircleAxes = function() {
@@ -75,14 +75,22 @@ addCircleAxes = function() {
     circleAxes.append("svg:circle")
         .attr("r", String)
         .attr("class", "circle")
-        .style("stroke", "#CCC")
+        .style("stroke", "#333")
         .style("opacity", 0.5)
         .style("fill", "none");
 
     circleAxes.append("svg:text")
         .attr("text-anchor", "center")
         .attr("dy", function(d) { return d - 5 })
-        .style("fill", "#fff")
+        .style("fill", "#333")
         .text(function(d,i) { return i * (100/numTicks) });
 
+};
+
+addLegend = function() {
+    legend = svg.append("g")
+        .attr("class","legend")
+        .attr("transform","translate(50,30)")
+        .style("font-size","12px")
+        .call(d3.legend);
 };

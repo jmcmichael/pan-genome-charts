@@ -69,10 +69,26 @@
           <file leaf-file-name="d3-rose-chart.js" pinned="false" current="true" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/d3-rose-chart.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="45" column="0" selection-start="1092" selection-end="1092" vertical-scroll-proportion="0.59833026" vertical-offset="0" max-vertical-offset="1365">
-                  <folding>
-                    <element signature="e#0#42#0" expanded="false" />
-                  </folding>
+                <state line="19" column="20" selection-start="455" selection-end="455" vertical-scroll-proportion="0.2625232" vertical-offset="2" max-vertical-offset="1515">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="lodash.js" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/lodash.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="3966" column="4" selection-start="135396" selection-end="135396" vertical-scroll-proportion="0.0" vertical-offset="60016" max-vertical-offset="102105">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="d3-rose-chart.css" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/d3-rose-chart.css">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="7" column="16" selection-start="91" selection-end="91" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="480">
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -84,7 +100,7 @@
           <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/index.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="6" column="18" selection-start="149" selection-end="149" vertical-scroll-proportion="-3.75" vertical-offset="0" max-vertical-offset="225">
+                <state line="6" column="22" selection-start="153" selection-end="153" vertical-scroll-proportion="-3.75" vertical-offset="0" max-vertical-offset="255">
                   <folding />
                 </state>
               </provider>
@@ -93,7 +109,7 @@
           <file leaf-file-name="samples-data-1.csv" pinned="false" current="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/samples-data-1.csv">
               <provider editor-type-id="text-editor">
-                <state line="55" column="5" selection-start="1464" selection-end="1464" vertical-scroll-proportion="0.0" vertical-offset="720" max-vertical-offset="915">
+                <state line="55" column="0" selection-start="1459" selection-end="1459" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="915">
                   <folding />
                 </state>
               </provider>
@@ -127,8 +143,8 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/d3-rose-chart.css" />
-        <option value="$PROJECT_DIR$/samples-data-1.csv" />
         <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/samples-data-1.csv" />
         <option value="$PROJECT_DIR$/d3-rose-chart.js" />
       </list>
     </option>
@@ -216,7 +232,7 @@
     <property name="MemberChooser.sorted" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="options.lastSelected" value="Errors" />
+    <property name="options.lastSelected" value="preferences.pluginManager" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
@@ -371,7 +387,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15671642" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="REPL" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -400,14 +416,14 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/d3-rose-chart.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="301" selection-end="301" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="480">
+        <state line="7" column="16" selection-start="91" selection-end="91" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="480">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="6" column="18" selection-start="149" selection-end="149" vertical-scroll-proportion="-3.75" vertical-offset="0" max-vertical-offset="225">
+        <state line="6" column="22" selection-start="153" selection-end="153" vertical-scroll-proportion="-3.75" vertical-offset="0" max-vertical-offset="255">
           <folding />
         </state>
       </provider>
@@ -422,9 +438,16 @@
         <state />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/lodash.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3966" column="4" selection-start="135396" selection-end="135396" vertical-scroll-proportion="0.0" vertical-offset="60016" max-vertical-offset="102105">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/samples-data-1.csv">
       <provider editor-type-id="text-editor">
-        <state line="55" column="5" selection-start="1464" selection-end="1464" vertical-scroll-proportion="0.0" vertical-offset="720" max-vertical-offset="915">
+        <state line="55" column="0" selection-start="1459" selection-end="1459" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="915">
           <folding />
         </state>
       </provider>
@@ -434,10 +457,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/d3-rose-chart.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="0" selection-start="1092" selection-end="1092" vertical-scroll-proportion="0.59833026" vertical-offset="0" max-vertical-offset="1365">
-          <folding>
-            <element signature="e#0#42#0" expanded="false" />
-          </folding>
+        <state line="19" column="20" selection-start="455" selection-end="455" vertical-scroll-proportion="0.2625232" vertical-offset="2" max-vertical-offset="1515">
+          <folding />
         </state>
       </provider>
     </entry>
