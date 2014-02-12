@@ -69,7 +69,16 @@
           <file leaf-file-name="d3-rose-chart.js" pinned="false" current="true" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/d3-rose-chart.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state line="19" column="20" selection-start="455" selection-end="455" vertical-scroll-proportion="0.2625232" vertical-offset="2" max-vertical-offset="1515">
+                <state line="42" column="39" selection-start="1014" selection-end="1014" vertical-scroll-proportion="0.15120594" vertical-offset="467" max-vertical-offset="1545">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="d3.v3.js" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/d3.v3.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="7392" column="11" selection-start="253917" selection-end="253917" vertical-scroll-proportion="0.0" vertical-offset="114226" max-vertical-offset="144495">
                   <folding />
                 </state>
               </provider>
@@ -106,15 +115,24 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="samples-data-1.csv" pinned="false" current="false" current-in-tab="true">
+          <file leaf-file-name="samples-data-1.csv" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/samples-data-1.csv">
-              <provider editor-type-id="text-editor">
-                <state line="55" column="0" selection-start="1459" selection-end="1459" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="915">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="0" column="0" selection-start="0" selection-end="1459" vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="915">
                   <folding />
                 </state>
               </provider>
-              <provider selected="true" editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
+              <provider editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
                 <state />
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="calibration-data.csv" pinned="false" current="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/calibration-data.csv">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="9" column="26" selection-start="289" selection-end="289" vertical-scroll-proportion="0.1252319" vertical-offset="0" max-vertical-offset="1078">
+                  <folding />
+                </state>
               </provider>
             </entry>
           </file>
@@ -145,6 +163,7 @@
         <option value="$PROJECT_DIR$/d3-rose-chart.css" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/samples-data-1.csv" />
+        <option value="$PROJECT_DIR$/calibration-data.csv" />
         <option value="$PROJECT_DIR$/d3-rose-chart.js" />
       </list>
     </option>
@@ -446,18 +465,32 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/samples-data-1.csv">
-      <provider editor-type-id="text-editor">
-        <state line="55" column="0" selection-start="1459" selection-end="1459" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="915">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="1459" vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="915">
           <folding />
         </state>
       </provider>
-      <provider selected="true" editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
+      <provider editor-type-id="com.intellij.persistence.database.editor.CsvTableFileEditorProvider">
         <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/calibration-data.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="26" selection-start="289" selection-end="289" vertical-scroll-proportion="0.1252319" vertical-offset="0" max-vertical-offset="1078">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/d3.v3.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7392" column="11" selection-start="253917" selection-end="253917" vertical-scroll-proportion="0.0" vertical-offset="114226" max-vertical-offset="144495">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/d3-rose-chart.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="20" selection-start="455" selection-end="455" vertical-scroll-proportion="0.2625232" vertical-offset="2" max-vertical-offset="1515">
+        <state line="42" column="39" selection-start="1014" selection-end="1014" vertical-scroll-proportion="0.15120594" vertical-offset="467" max-vertical-offset="1545">
           <folding />
         </state>
       </provider>

@@ -5,6 +5,7 @@
 var width = 950,
     height = 950,
     radius = Math.min(width, height) / 2 - 50,
+    innerRadius = 20,
     numTicks = 5,
     sdat = [];
 
@@ -13,20 +14,21 @@ var width = 950,
 
 var color = d3.scale.category20();
 
+var ageRange = d3.scale.linear()
+    .domain([0, 100])
+    .range([innerRadius, radius])
+
 
 var arc = d3.svg.arc()
     .outerRadius(function(d) {
-        var oRad = 50 + (radius - 50) * d.data.AGE/ 100;
+        var oRad = ageRange(d.data.AGE);
         return oRad;
     })
-    .innerRadius(20);
+    .innerRadius(innerRadius);
 
 var pie = d3.layout.pie()
     .sort(null)
     .value(function(d) { return d.NORMAL_VAF; });
-
-var grid = d3.svg.area.radial()
-    .radius(150);
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -35,12 +37,12 @@ var svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
 for (i=0; i<=numTicks; i++) {
-    sdat[i] = 20 + ((radius/numTicks) * i);
+    sdat[i] = innerRadius + (((radius - innerRadius)/numTicks) * i);
 }
 
 console.log(["sdat:", sdat].join(" "));
 
-d3.csv("samples-data-1.csv", function(error, data) {
+d3.csv("calibration-data.csv", function(error, data) {
     data = _.map(_.sortBy(data, ["GENE", "AGE"], _.values));
     var g = svg.selectAll(".arc")
         .data(pie(data))
