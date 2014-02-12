@@ -1,7 +1,7 @@
 
 body {
     font: 10px sans-serif;
-    background: #EFEFEF;
+    background: #FFF;
 }
 
 .arc path {
@@ -23,4 +23,12 @@ body {
 
 .arc line {
     stroke: #333;
+}
+
+.legend-box {
+    fill: #FFF;
+}
+
+#legend {
+    background-color: #CCC;
 }

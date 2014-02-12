@@ -9,26 +9,23 @@ var width = 950,
     numTicks = 5,
     sdat = [];
 
-//var color = d3.scale.ordinal()
-//    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
 var color = d3.scale.category20();
 
 var ageRange = d3.scale.linear()
     .domain([0, 100])
-    .range([innerRadius, radius])
-
+    .range([innerRadius, radius]);
 
 var arc = d3.svg.arc()
     .outerRadius(function(d) {
-        var oRad = ageRange(d.data.AGE);
-        return oRad;
+        var age = d.data.AGE == 100 ? 59.9 : d.data.AGE;
+        return ageRange(age);
     })
     .innerRadius(innerRadius);
 
 var pie = d3.layout.pie()
     .sort(null)
-    .value(function(d) { return d.NORMAL_VAF; });
+    .value(function(d) { return 1});
+//    .value(function(d) { return d.NORMAL_VAF; });
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -40,28 +37,34 @@ for (i=0; i<=numTicks; i++) {
     sdat[i] = innerRadius + (((radius - innerRadius)/numTicks) * i);
 }
 
-console.log(["sdat:", sdat].join(" "));
-
-d3.csv("calibration-data.csv", function(error, data) {
+d3.csv("samples-data-1.csv", function(error, data) {
     data = _.map(_.sortBy(data, ["GENE", "AGE"], _.values));
+    legendItems = _.uniq(_.pluck(data, "GENE"));
+
     var g = svg.selectAll(".arc")
         .data(pie(data))
         .enter().append("g")
-        .attr("data-legend",function(d) { return d.GENE})
         .attr("class", "arc");
 
     g.append("path")
         .attr("d", arc)
+        .attr("data-legend", function(d) { return d.data.GENE})
+        .attr("data-legend-pos", function(d) { return legendItems.indexOf(d.data.GENE)})
         .style("fill", function(d) { return color(d.data.GENE); });
 
-    g.append("text")
-        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .text(function(d) { return d.data.GENE; });
+//    g.append("text")
+//        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+//        .attr("dy", ".35em")
+//        .style("text-anchor", "middle")
+//        .text(function(d) { return d.data.GENE; });
+
+    g.append("g")
+        .attr("class","legend")
+        .attr("transform","translate(400,225)")
+        .style("font-size","12px")
+        .call(d3.legend);
 
     addCircleAxes();
-   //  addLegend();
 });
 
 addCircleAxes = function() {
@@ -86,13 +89,4 @@ addCircleAxes = function() {
         .attr("dy", function(d) { return d - 5 })
         .style("fill", "#333")
         .text(function(d,i) { return i * (100/numTicks) });
-
-};
-
-addLegend = function() {
-    legend = svg.append("g")
-        .attr("class","legend")
-        .attr("transform","translate(50,30)")
-        .style("font-size","12px")
-        .call(d3.legend);
 };
