@@ -7,6 +7,7 @@ var width = 950,
     radius = Math.min(width, height) / 2 - 50,
     innerRadius = 20,
     numTicks = 5,
+    avgAge = Number(),
     sdat = [];
 
 var color = d3.scale.category20();
@@ -17,7 +18,7 @@ var ageRange = d3.scale.linear()
 
 var arc = d3.svg.arc()
     .outerRadius(function(d) {
-        var age = d.data.AGE == 100 ? 59.9 : d.data.AGE;
+        var age = d.data.AGE == "null" ? avgAge : d.data.AGE;
         return ageRange(age);
     })
     .innerRadius(innerRadius);
@@ -38,8 +39,11 @@ for (i=0; i<=numTicks; i++) {
 }
 
 d3.csv("samples-data-1.csv", function(error, data) {
-    data = _.map(_.sortBy(data, ["GENE", "AGE"], _.values));
-    legendItems = _.uniq(_.pluck(data, "GENE"));
+    var data = _.map(_.sortBy(data, ["GENE", "AGE"], _.values));
+    var legendItems = _.uniq(_.pluck(data, "GENE")).sort();
+
+    avgAge = d3.mean(_.pluck(data, "AGE"));
+    console.log("avgAge: " + avgAge);
 
     var g = svg.selectAll(".arc")
         .data(pie(data))
@@ -50,7 +54,13 @@ d3.csv("samples-data-1.csv", function(error, data) {
         .attr("d", arc)
         .attr("data-legend", function(d) { return d.data.GENE})
         .attr("data-legend-pos", function(d) { return legendItems.indexOf(d.data.GENE)})
-        .style("fill", function(d) { return color(d.data.GENE); });
+        .style("fill", function(d) { return color(d.data.GENE); })
+        .style("stroke", function(d) {
+            return d.data.AGE == "null" ? "#F00" : "#FFF";
+        })
+        .style("stroke-width", function(d) {
+            return d.data.AGE == "null" ? 1 : 1;
+        });
 
 //    g.append("text")
 //        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
@@ -58,13 +68,8 @@ d3.csv("samples-data-1.csv", function(error, data) {
 //        .style("text-anchor", "middle")
 //        .text(function(d) { return d.data.GENE; });
 
-    g.append("g")
-        .attr("class","legend")
-        .attr("transform","translate(400,225)")
-        .style("font-size","12px")
-        .call(d3.legend);
-
     addCircleAxes();
+    addLegend();
 });
 
 addCircleAxes = function() {
@@ -90,3 +95,11 @@ addCircleAxes = function() {
         .style("fill", "#333")
         .text(function(d,i) { return i * (100/numTicks) });
 };
+
+addLegend = function() {
+    svg.append("g")
+        .attr("class","legend")
+        .attr("transform","translate(400,225)")
+        .style("font-size","12px")
+        .call(d3.legend);
+}

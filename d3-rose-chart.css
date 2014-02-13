@@ -4,16 +4,10 @@ body {
     background: #FFF;
 }
 
-.arc path {
-    stroke: #FFF;
-    stroke-width: .5px;
-}
-
-.arc grid {
-    stroke: #333;
-    stroke-width: 1;
-    stroke-dasharray: 5,5;
-}
+/*.arc path {*/
+    /*stroke: #FFF;*/
+    /*stroke-width: .5px;*/
+/*}*/
 
 .arc text {
     fill:#333;
