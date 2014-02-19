@@ -42,12 +42,7 @@ var ageArc = d3.svg.arc()
 
 var pie = d3.layout.pie()
     .sort(null)
-    .value(function(d) {
-//        if (d.CASE.substr(-3) == "dbl") {
-//            return 0.5;
-//        } else {
-            return 1
-//        }
+    .value(function(d) { return 1
     });
 
 var svg = d3.select("body").append("svg")
@@ -70,7 +65,7 @@ var tipAge = d3.tip()
 
 svg.call(tipAge);
 
-// set up tick positions (this looks like a kludge)
+// set up tick positions (this can probably be done more elegantly...)
 for (i=0; i<=numTicksAge; i++) {
     sdat[i] = ageInnerRadius + (((radius - ageInnerRadius)/numTicksAge) * i);
 }
@@ -80,32 +75,50 @@ for (i=0; i<=numTicksVaf; i++) {
 }
 
 d3.csv("samples-data-5.csv", function(error, data) {
-    // filter AML groups, singles, and doubles
+    var dataGroups;
 
-    var notAMLsamples = _.filter(data, function(d) {
-        return d.GROUP == "notAML";
+    // groupBy gene name (using notAML as the gene name for genes in the notAML group)
+    dataGroups = _.groupBy(data, function (sample) {
+        if (sample.GROUP == "AML") {
+            return sample.GENE;
+        } else {
+            return "notAML";
+        }
     });
 
-    var AMLsamples = _.reject(data, function(d) {
-        return d.GROUP == "notAML";
+    // sort dataGroups by sample count in each group, descending
+    dataGroups = _.sortBy(dataGroups, function(group) { return group.length; }).reverse();
+
+    // sort each group by age
+    dataGroups = _.map(dataGroups, function(group){
+        return _.sortBy(group, "AGE");
     });
 
-    var singles = _.reject(AMLsamples, function(d) {
-        return d.CASE.substr(-3) == "dbl"
+    // move singletons to their own group, sorted by age
+    var singletonGroupArray = _.remove(dataGroups, function(group) {
+        return group.length == 1;
     });
 
-    var doubles = _.filter(AMLsamples, function(d) {
-        return d.CASE.substr(-3) == "dbl"
+    // convert from array of arrays of objects to array of objects
+    var singletonGroup = [];
+    _.forEach(singletonGroupArray, function(array) {
+        singletonGroup.push(array[0]);
     });
 
-    notAMLsamples = _.map(_.sortBy(notAMLsamples, ["AGE"], _.values));
-    singles = _.map(_.sortBy(singles, ["GENE", "AGE"], _.values));
-    doubles = _.map(_.sortBy(doubles, ["GENE", "AGE", "CASE"], _.values));
+    singletonGroup = _.sortBy(singletonGroup, "AGE");
+    dataGroups.push(singletonGroup);
+
+    // move notAML group to the end
+    var notAMLgroup = _.remove(dataGroups, function(group) {
+        if (_.every(group, function(sample) { return sample.GROUP == "notAML"; })) {
+            return true;
+        }
+    });
+    dataGroups.push(notAMLgroup[0]);
 
 
-    var data = doubles.concat(singles, notAMLsamples);
-
-    // var data = _.map(_.sortBy(data, ["AGE", "CASE", "GENE"], _.values));
+    // concat all groups into one data array
+    data = data.concat.apply([], dataGroups);
 
     var legendItems = _.uniq(_.pluck(data, "GENE")).sort();
 
@@ -132,13 +145,13 @@ d3.csv("samples-data-5.csv", function(error, data) {
         .attr("data-legend-pos", function(d) { return legendItems.indexOf(d.data.GENE)})
         .style("fill", function(d) {
             if (d.data.GROUP == "notAML") {
-                return "#333";
+                return "#EFEFEF";
             } else {
                 return ageColor(d.data.GENE);
             }
         })
         .style("stroke", function(d) {
-            console.log(["CASE:", d.data.CASE].join(" "));
+
             if (d.data.CASE.substr(-3) == "dbl") {
                 return "#0F0";
             } else if (d.data.AGE == "null") {
