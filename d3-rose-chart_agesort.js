@@ -76,49 +76,18 @@ for (i=0; i<=numTicksVaf; i++) {
 
 d3.csv("samples-data-5.csv", function(error, data) {
     var dataGroups;
+    var ageGroups = _.range(0, 100, 10);
 
     // groupBy gene name (using notAML as the gene name for genes in the notAML group)
     dataGroups = _.groupBy(data, function (sample) {
-        if (sample.GROUP == "AML") {
-            return sample.GENE;
-        } else {
-            return "notAML";
-        }
+        rangeUpper = _.find(ageGroups, function(age) {
+            return sample.AGE < age;
+        });
+        console.log(["rangeUpper:", rangeUpper].join(" "));
+        rangeLower = ageGroups[_.indexOf(ageGroups, rangeUpper) - 1];
+        console.log(["rangeLower:", rangeLower].join(" "));
+        return String(rangeLower) + String(rangeLower);
     });
-
-    // sort dataGroups by sample count in each group, descending
-    dataGroups = _.sortBy(dataGroups, function(group) { return group.length; }).reverse();
-
-    // sort each group by age
-    dataGroups = _.map(dataGroups, function(group){
-        return _.sortBy(group, "AGE");
-    });
-
-    // move singletons to their own group, sorted by age
-    var singletonGroupArray = _.remove(dataGroups, function(group) {
-        return group.length == 1;
-    });
-
-    // convert from array of arrays of objects to array of objects
-    var singletonGroup = [];
-    _.forEach(singletonGroupArray, function(array) {
-        singletonGroup.push(array[0]);
-    });
-
-    singletonGroup = _.sortBy(singletonGroup, "AGE");
-    dataGroups.push(singletonGroup);
-
-    // move notAML group to the end
-    var notAMLgroup = _.remove(dataGroups, function(group) {
-        if (_.every(group, function(sample) { return sample.GROUP == "notAML"; })) {
-            return true;
-        }
-    });
-    dataGroups.push(notAMLgroup[0]);
-
-
-    // concat all groups into one data array
-    data = data.concat.apply([], dataGroups);
 
     var legendItems = _.uniq(_.pluck(data, "GENE")).sort();
 

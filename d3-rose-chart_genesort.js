@@ -6,10 +6,14 @@ var width = 950,
     height = 950,
     radius = Math.min(width, height) / 2 - 50,
     ageInnerRadius = 150,
-    vafInnerRadius = 70,
+    vafInnerRadius = 50,
+    vafOuterRadius = 145,
     numTicksAge = 5,
     numTicksVaf = 5,
     avgAge = Number(),
+    axisGap = .1,
+    startAngle = axisGap/2,
+    endAngle = 2*Math.PI - axisGap/2,
     sdat = [],
     sdatVaf = [];
 
@@ -19,14 +23,14 @@ var vafColor = d3.scale.category10();
 
 var vafRange = d3.scale.linear()
     .domain([0,100])
-    .range([vafInnerRadius, ageInnerRadius]);
+    .range([vafInnerRadius, vafOuterRadius]);
 
 var vafArc = d3.svg.arc()
     .outerRadius(function(d) { return vafRange(d.data.NORMAL_VAF); })
     .innerRadius(vafInnerRadius);
 
 var vafArcBg = d3.svg.arc()
-    .outerRadius(ageInnerRadius)
+    .outerRadius(vafOuterRadius)
     .innerRadius(vafInnerRadius);
 
 var labelArc = d3.svg.arc()
@@ -44,16 +48,28 @@ var ageArc = d3.svg.arc()
     })
     .innerRadius(ageInnerRadius);
 
+var ageAxisArc = d3.svg.arc()
+    .outerRadius(function(d) {
+        return d + .5;
+    })
+    .innerRadius(function(d) {
+        return d - .5;
+    });
+
 var pie = d3.layout.pie()
     .sort(null)
     .value(function(d) { return 1
-    });
+    })
+    .startAngle(startAngle)
+    .endAngle(endAngle)
 
 var pieGroups = d3.layout.pie()
     .sort(null)
     .value(function(d) {
         return d.length;
-    });
+    })
+    .startAngle(startAngle)
+    .endAngle(endAngle);
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -81,7 +97,7 @@ for (i=0; i<=numTicksAge; i++) {
 }
 
 for (i=0; i<=numTicksVaf; i++) {
-    sdatVaf[i] = vafInnerRadius + (((ageInnerRadius - vafInnerRadius)/numTicksVaf) * i);
+    sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
 }
 
 d3.csv("samples-data-5.csv", function(error, data) {
@@ -125,7 +141,7 @@ d3.csv("samples-data-5.csv", function(error, data) {
         }
     });
     dataGroups.push(notAMLgroup[0]);
-    
+
     // get a list of non-aml genes for use in constructing the key
     console.log("notAML group:" );
     console.log(_.map(notAMLgroup[0], function(s) { return s.GENE }).sort().join(" "));
