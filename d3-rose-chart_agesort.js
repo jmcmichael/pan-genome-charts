@@ -5,9 +5,9 @@
 var width = 950,
     height = 950,
     radius = Math.min(width, height) / 2 - 50,
-    ageInnerRadius = 155,
-    vafInnerRadius = 50,
-    vafOuterRadius = 145,
+    ageInnerRadius = 120,
+    cancerTypeInnerRadius = 50,
+    cancerTypeOuterRadius = 110,
     numTicksAge = 5,
     numTicksVaf = 5,
     avgAge = Number(),
@@ -22,15 +22,15 @@ var conservedSingltons = ["ASXL2", "CBFB", "SH2B3"];
 
 var vafRange = d3.scale.linear()
     .domain([0,100])
-    .range([vafInnerRadius, vafOuterRadius]);
+    .range([cancerTypeInnerRadius, cancerTypeOuterRadius]);
 
 var vafArc = d3.svg.arc()
     .outerRadius(function(d) { return vafRange(d.data.NORMAL_VAF); })
-    .innerRadius(vafInnerRadius);
+    .innerRadius(cancerTypeInnerRadius);
 
 var vafArcBg = d3.svg.arc()
-    .outerRadius(vafOuterRadius)
-    .innerRadius(vafInnerRadius);
+    .outerRadius(cancerTypeOuterRadius)
+    .innerRadius(cancerTypeInnerRadius);
 
 var labelArc = d3.svg.arc()
     .outerRadius(radius + 10)
@@ -98,7 +98,7 @@ for (i=0; i<=numTicksAge; i++) {
 }
 
 for (i=0; i<=numTicksVaf; i++) {
-    sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
+    sdatVaf[i] = cancerTypeInnerRadius + (((cancerTypeOuterRadius- cancerTypeInnerRadius)/numTicksVaf) * i);
 }
 
 d3.csv("samples-data-5.csv", function(error, data) {
@@ -135,7 +135,10 @@ d3.csv("samples-data-5.csv", function(error, data) {
     var legendItems = _.uniq(_.pluck(data, "AGEGROUP")).sort();
 
     // set up color palettes
-    var ageGroupColor = d3.scale.category10();
+    var ageGroupColor = d3.scale.ordinal()
+        .domain(_.keys(dataGroups))
+        .range(colorbrewer.Blues[7]);
+    var cancerTypeColor = d3.scale.category20();
 
     // draw age rose chart
     var gAge = svg.append("g")
@@ -176,20 +179,12 @@ d3.csv("samples-data-5.csv", function(error, data) {
 
     gvbg.append("path")
         .attr("d", vafArcBg)
-        .style("fill", "#EEE")
+        .style("fill", function(d) {
+            return cancerTypeColor(d.data.CANCER_TYPE);
+        })
         .style("stroke", "#FFF")
         .style("stroke-width", 1);
 
-    // vaf pie
-    var gv = gVaf2.selectAll(".arc")
-        .data(pie(data))
-        .enter().append("g");
-
-    gv.append("path")
-        .attr("d", vafArc)
-        .style("fill", "#AAA")
-        .style("stroke", "#FFF")
-        .style("stroke-width", 1);
 
     // draw gene group label arcs
     var gLabels= svg.append("g")
