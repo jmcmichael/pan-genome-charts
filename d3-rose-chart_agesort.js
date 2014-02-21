@@ -5,29 +5,36 @@
 var width = 950,
     height = 950,
     radius = Math.min(width, height) / 2 - 50,
-    ageInnerRadius = 150,
-    vafInnerRadius = 70,
+    ageInnerRadius = 155,
+    vafInnerRadius = 50,
+    vafOuterRadius = 145,
     numTicksAge = 5,
     numTicksVaf = 5,
     avgAge = Number(),
+    axisGap = .15,
+    startAngle = axisGap/2,
+    endAngle = 2*Math.PI - axisGap/2,
+    axisStrokeColor = "#666",
     sdat = [],
     sdatVaf = [];
 
-var ageColor = d3.scale.category20();
-
-var vafColor = d3.scale.category10();
+var conservedSingltons = ["ASXL2", "CBFB", "SH2B3"];
 
 var vafRange = d3.scale.linear()
     .domain([0,100])
-    .range([vafInnerRadius, ageInnerRadius]);
+    .range([vafInnerRadius, vafOuterRadius]);
 
 var vafArc = d3.svg.arc()
     .outerRadius(function(d) { return vafRange(d.data.NORMAL_VAF); })
     .innerRadius(vafInnerRadius);
 
 var vafArcBg = d3.svg.arc()
-    .outerRadius(ageInnerRadius)
+    .outerRadius(vafOuterRadius)
     .innerRadius(vafInnerRadius);
+
+var labelArc = d3.svg.arc()
+    .outerRadius(radius + 10)
+    .innerRadius(radius);
 
 var ageRange = d3.scale.linear()
     .domain([0, 100])
@@ -40,10 +47,30 @@ var ageArc = d3.svg.arc()
     })
     .innerRadius(ageInnerRadius);
 
+var ageAxisArc = d3.svg.arc()
+    .outerRadius(function(d) {
+        return d + .5;
+    })
+    .innerRadius(function(d) {
+        return d - .5;
+    })
+    .startAngle(startAngle)
+    .endAngle(endAngle);
+
 var pie = d3.layout.pie()
     .sort(null)
     .value(function(d) { return 1
-    });
+    })
+    .startAngle(startAngle)
+    .endAngle(endAngle)
+
+var pieGroups = d3.layout.pie()
+    .sort(null)
+    .value(function(d) {
+        return d.length;
+    })
+    .startAngle(startAngle)
+    .endAngle(endAngle);
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -71,28 +98,44 @@ for (i=0; i<=numTicksAge; i++) {
 }
 
 for (i=0; i<=numTicksVaf; i++) {
-    sdatVaf[i] = vafInnerRadius + (((ageInnerRadius - vafInnerRadius)/numTicksVaf) * i);
+    sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
 }
 
 d3.csv("samples-data-5.csv", function(error, data) {
     var dataGroups;
-    var ageGroups = _.range(0, 100, 10);
+    var ageRanges = _.range(0, 100, 10);
+    var avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
 
-    // groupBy gene name (using notAML as the gene name for genes in the notAML group)
+    // sort by age
+    data = _.sortBy(data, 'AGE');
+
+    // group by age
     dataGroups = _.groupBy(data, function (sample) {
-        rangeUpper = _.find(ageGroups, function(age) {
-            return sample.AGE < age;
+        rangeUpper = _.find(ageRanges, function(age) {
+            if (sample.AGE == "null") { return avgAge < age; }
+            else { return sample.AGE < age; }
         });
-        console.log(["rangeUpper:", rangeUpper].join(" "));
-        rangeLower = ageGroups[_.indexOf(ageGroups, rangeUpper) - 1];
-        console.log(["rangeLower:", rangeLower].join(" "));
-        return String(rangeLower) + String(rangeLower);
+        rangeLower = ageRanges[_.indexOf(ageRanges, rangeUpper) - 1];
+        return String(rangeLower) + "-" + String(rangeUpper);
     });
 
-    var legendItems = _.uniq(_.pluck(data, "GENE")).sort();
+    // sort dataGroups
+    var sortedSamples = [];
+    _(dataGroups).keys().sort().each(function(ageRange) {
+        console.log(["ageRange:", ageRange].join(" "));
+        _.each(dataGroups[ageRange], function(sample) {
+            sample.AGEGROUP = ageRange;
+            sortedSamples.push(sample);
+        });
+    });
 
-    avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
-    console.log("avgAge: " + avgAge);
+    // concat all groups into one data array
+    data = sortedSamples;
+
+    var legendItems = _.uniq(_.pluck(data, "AGEGROUP")).sort();
+
+    // set up color palettes
+    var ageGroupColor = d3.scale.category10();
 
     // draw age rose chart
     var gAge = svg.append("g")
@@ -105,33 +148,14 @@ d3.csv("samples-data-5.csv", function(error, data) {
     ga.append("path")
         .attr("d", ageArc)
         .attr("data-legend", function(d) {
-            if (d.data.GROUP == "notAML") {
-                return "notAML"
-            } else {
-                return d.data.GENE
-            }
+            return d.data.AGEGROUP;
         })
         .attr("data-legend-pos", function(d) { return legendItems.indexOf(d.data.GENE)})
         .style("fill", function(d) {
-            if (d.data.GROUP == "notAML") {
-                return "#EFEFEF";
-            } else {
-                return ageColor(d.data.GENE);
-            }
+            return ageGroupColor(d.data.AGEGROUP);
         })
-        .style("stroke", function(d) {
-
-            if (d.data.CASE.substr(-3) == "dbl") {
-                return "#0F0";
-            } else if (d.data.AGE == "null") {
-                return "#00F";
-            } else {
-                return "#FFF";
-            }
-        })
-        .style("stroke-width", function(d) {
-            return d.data.AGE == "null" ? 1 : 1;
-        })
+        .style("stroke", "#FFF")
+        .style("stroke-width", 1)
         .on('mouseover', tipAge.show)
         .on('mouseout', tipAge.hide);
 
@@ -163,7 +187,23 @@ d3.csv("samples-data-5.csv", function(error, data) {
 
     gv.append("path")
         .attr("d", vafArc)
-        .style("fill", "#AAC")
+        .style("fill", "#AAA")
+        .style("stroke", "#FFF")
+        .style("stroke-width", 1);
+
+    // draw gene group label arcs
+    var gLabels= svg.append("g")
+        .attr("id", "gLabels");
+
+    var gl = gLabels.selectAll(".arc")
+        .data(pieGroups(dataGroups))
+        .enter().append("g");
+
+    gl.append("path")
+        .attr("d", labelArc)
+        .style("fill", function(d) {
+            return ageColor(d.data[0].GENE)
+        })
         .style("stroke", "#FFF")
         .style("stroke-width", 1);
 
@@ -182,12 +222,9 @@ addAgeCircleAxes = function() {
         .enter().append('svg:g')
         .attr("class", "circle-ticks");
 
-    circleAxes.append("svg:circle")
-        .attr("r", String)
-        .attr("class", "circle")
-        .style("stroke", "#333")
-        .style("opacity", 0.5)
-        .style("fill", "none");
+    circleAxes.append("path")
+        .attr("d", ageAxisArc)
+        .style("fill", axisStrokeColor);
 
     circleAxes.append("svg:text")
         .attr("text-anchor", "center")
@@ -208,18 +245,15 @@ addVafCircleAxes = function() {
         .enter().append('svg:g')
         .attr("class", "circle-ticks-vaf");
 
-    circleAxes.append("svg:circle")
-        .attr("r", String)
-        .attr("class", "circle")
-        .style("stroke", "#333")
-        .style("opacity", 0.5)
-        .style("fill", "none");
+    circleAxes.append("path")
+        .attr("d", ageAxisArc)
+        .style("fill", axisStrokeColor);
 
     circleAxes.append("svg:text")
-        .attr("text-anchor", "center")
+        .attr("text-anchor", "start")
         .attr("font-size", "8px")
-        .attr("font-weight", "normal")
-        .attr("dy", function(d) { return d -5 })
+        .attr("font-weight", "bold")
+        .attr("dy", function(d) { return d + 15 })
         .style("fill", "#333")
         .text(function(d,i) { return i * (100/numTicksVaf) });
 };
@@ -230,4 +264,4 @@ addLegend = function() {
         .attr("transform","translate(400,225)")
         .style("font-size","12px")
         .call(d3.legend);
-}
+};

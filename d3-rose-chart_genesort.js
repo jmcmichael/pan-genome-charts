@@ -5,13 +5,13 @@
 var width = 950,
     height = 950,
     radius = Math.min(width, height) / 2 - 50,
-    ageInnerRadius = 150,
+    ageInnerRadius = 155,
     vafInnerRadius = 50,
     vafOuterRadius = 145,
     numTicksAge = 5,
     numTicksVaf = 5,
     avgAge = Number(),
-    axisGap = .1,
+    axisGap = .15,
     startAngle = axisGap/2,
     endAngle = 2*Math.PI - axisGap/2,
     axisStrokeColor = "#666",
@@ -121,21 +121,25 @@ d3.csv("samples-data-5.csv", function(error, data) {
         return group.length == 1 && _.contains(conservedSingltons, group[0].GENE);
     });
 
+    console.log("dataGroups before:");
+    console.dir(dataGroups);
+
+    var notAMLg = dataGroups[_.findIndex(dataGroups, function(group) {
+        return _.every(group, function(sample) {
+            return sample.GROUP == "notAML";
+        });
+    })];
+
     // tag the remainder of the singletons as notAML and move to the notAML group
     _.forEach(dataGroups, function(group) {
         if (group.length == 1) {
             group[0].GROUP = "notAML";
-            // find the notAML group and add the current singleton sample to it
-            var s = dataGroups[_.findIndex(dataGroups, function(group) {
-                return _.every(group, function(sample) {
-                    return sample.GROUP == "notAML";
-                });
-            })];
-            console.log("s:");
-            console.dir(s);
-            s.push(group[0]);
+            notAMLg.push(group[0]);
         }
     });
+
+    console.log("dataGroups after:");
+    console.dir(dataGroups);
 
     // convert from array of arrays of objects to array of objects
     var singletonGroup = [];
@@ -163,9 +167,6 @@ d3.csv("samples-data-5.csv", function(error, data) {
     dataGroups = _.map(dataGroups, function(group){
         return _.sortBy(group, "AGE");
     });
-
-    console.dir(dataGroups);
-    console.dir(notAMLgroup);
 
     // concat all groups into one data array
     data = data.concat.apply([], dataGroups);
