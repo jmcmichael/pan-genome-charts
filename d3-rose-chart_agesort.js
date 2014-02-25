@@ -67,7 +67,7 @@ var pie = d3.layout.pie()
 var pieGroups = d3.layout.pie()
     .sort(null)
     .value(function(d) {
-        return d;
+        return d.count;
     })
     .startAngle(startAngle)
     .endAngle(endAngle);
@@ -123,7 +123,7 @@ d3.csv("samples-data-5.csv", function(error, data) {
     var ageGroupCount = [];
     var sortedSamples = [];
     _(dataGroups).keys().sort().each(function(ageRange) {
-        ageGroupCount.push(dataGroups[ageRange].length);
+        ageGroupCount.push({"ageRange": ageRange, "count": dataGroups[ageRange].length});
         _.each(dataGroups[ageRange], function(sample) {
             sample.AGEGROUP = ageRange;
             sortedSamples.push(sample);
@@ -197,7 +197,7 @@ d3.csv("samples-data-5.csv", function(error, data) {
     gl.append("path")
         .attr("d", labelArc)
         .style("fill", function(d) {
-            return ageGroupColor(d.data.AGEGROUP)
+            return ageGroupColor(d.data.ageRange);
         })
         .style("stroke", "#FFF")
         .style("stroke-width", 1);
