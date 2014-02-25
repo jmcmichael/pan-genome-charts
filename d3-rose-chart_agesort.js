@@ -105,6 +105,7 @@ d3.csv("samples-data-5.csv", function(error, data) {
     var dataGroups;
     var ageRanges = _.range(0, 100, 10);
     var avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
+    console.log(["avg age:", avgAge].join(" "));
 
     // sort by age
     data = _.sortBy(data, 'AGE');
