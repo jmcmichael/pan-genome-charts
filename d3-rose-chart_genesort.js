@@ -78,6 +78,18 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+// create crosshatch pattern
+svg.append('defs')
+    .append('pattern')
+    .attr('id', 'diagonalHatch')
+    .attr('patternUnits', 'userSpaceOnUse')
+    .attr('width', 4)
+    .attr('height', 4)
+    .append('path')
+    .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+    .attr('stroke', '#000000')
+    .attr('stroke-width', 1);
+
 
 // set up tooltips
 var tipAge = d3.tip()
@@ -101,7 +113,7 @@ for (i=0; i<=numTicksVaf; i++) {
     sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
 }
 
-d3.csv("samples-data-5.csv", function(error, data) {
+d3.csv("samples-data-6.csv", function(error, data) {
     var dataGroups;
 
     // groupBy gene name (using notAML as the gene name for genes in the notAML group)
@@ -178,12 +190,7 @@ d3.csv("samples-data-5.csv", function(error, data) {
 
     // set up color palettes
     var ageColor = d3.scale.category20();
-
-    var notAMLcolor = d3.scale.linear().domain(notAMLgroup).range(["#333","#EFEFEF"])
-
-//    var notAMLcolor = d3.scale.ordinal()
-//        .domain(notAMLgroup)
-//        .range(colorbrewer.Greys[7]);
+    var notAMLcolor = d3.scale.linear().domain([0, notAMLg.length]).range(["#000000","#EFEFEF"]);
 
     // draw age rose chart
     var gAge = svg.append("g")
@@ -205,13 +212,12 @@ d3.csv("samples-data-5.csv", function(error, data) {
         .attr("data-legend-pos", function(d) { return legendItems.indexOf(d.data.GENE)})
         .style("fill", function(d) {
             if (d.data.GROUP == "notAML") {
-                return notAMLcolor(_.indexOf(notAMLgroup, d.data.GENE));
+                return notAMLcolor(_.indexOf(notAMLg, d.data));
             } else {
                 return ageColor(d.data.GENE);
             }
         })
         .style("stroke", function(d) {
-
             if (d.data.CASE.substr(-3) == "dbl") {
                 return "#0F0";
             } else if (d.data.AGE == "null") {

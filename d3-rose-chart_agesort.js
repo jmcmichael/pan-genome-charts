@@ -78,7 +78,6 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-
 // set up tooltips
 var tipAge = d3.tip()
     .attr('class', 'd3-tip')
@@ -101,11 +100,14 @@ for (i=0; i<=numTicksVaf; i++) {
     sdatVaf[i] = cancerTypeInnerRadius + (((cancerTypeOuterRadius- cancerTypeInnerRadius)/numTicksVaf) * i);
 }
 
-d3.csv("samples-data-5.csv", function(error, data) {
+d3.csv("samples-data-6.csv", function(error, data) {
     var dataGroups;
     var ageRanges = _.range(0, 100, 10);
     var avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
     console.log(["avg age:", avgAge].join(" "));
+
+    // replace any null sample ages w/ avgerage age
+    _.forEach(data, function(sample) { if (sample.AGE == "null") { sample.AGE = avgAge } } );
 
     // sort by age
     data = _.sortBy(data, 'AGE');
@@ -113,8 +115,7 @@ d3.csv("samples-data-5.csv", function(error, data) {
     // group by age
     dataGroups = _.groupBy(data, function (sample) {
         rangeUpper = _.find(ageRanges, function(age) {
-            if (sample.AGE == "null") { return avgAge < age; }
-            else { return sample.AGE < age; }
+            return sample.AGE < age;
         });
         rangeLower = ageRanges[_.indexOf(ageRanges, rangeUpper) - 1];
         return String(rangeLower) + "-" + String(rangeUpper);
