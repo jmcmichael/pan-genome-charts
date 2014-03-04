@@ -18,8 +18,6 @@ var width = 950,
     sdat = [],
     sdatVaf = [];
 
-var conservedSingltons = ["ASXL2", "CBFB", "SH2B3"];
-
 var vafRange = d3.scale.linear()
     .domain([0,100])
     .range([cancerTypeInnerRadius, cancerTypeOuterRadius]);
@@ -100,7 +98,7 @@ for (i=0; i<=numTicksVaf; i++) {
     sdatVaf[i] = cancerTypeInnerRadius + (((cancerTypeOuterRadius- cancerTypeInnerRadius)/numTicksVaf) * i);
 }
 
-d3.csv("samples-data-6.csv", function(error, data) {
+d3.csv("samples-data-8.csv", function(error, data) {
     var dataGroups;
     var ageRanges = _.range(0, 100, 10);
     var avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
@@ -108,6 +106,21 @@ d3.csv("samples-data-6.csv", function(error, data) {
 
     // replace any null sample ages w/ avgerage age
     _.forEach(data, function(sample) { if (sample.AGE == "null") { sample.AGE = avgAge } } );
+
+    // sort by case, this will place all doubled samples together
+    data = _.sortBy(data, "CASE");
+
+    // console.log(_.pluck(data, "CASE"));
+
+    // reject sample with CASE identical to the previous sample, thus eliminating doubles
+    data = _.reject(data, function(sample, index) {
+        if (index == 0) {        // skip the first sample
+            return false;
+        }
+        return sample.CASE == data[index-1].CASE;
+    });
+
+    // console.log(_.pluck(data, "CASE"));
 
     // sort by age
     data = _.sortBy(data, 'AGE');
@@ -140,7 +153,7 @@ d3.csv("samples-data-6.csv", function(error, data) {
     // set up color palettes
     var ageGroupColor = d3.scale.ordinal()
         .domain(_.keys(dataGroups))
-        .range(colorbrewer.Blues[7]);
+        .range(["#91A0A9","#D7DEE5"]);
     var cancerTypeColor = d3.scale.category20();
 
     // draw age rose chart

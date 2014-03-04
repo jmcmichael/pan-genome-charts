@@ -18,7 +18,7 @@ var width = 950,
     sdat = [],
     sdatVaf = [];
 
-var conservedSingltons = ["ASXL2", "CBFB", "SH2B3"];
+var conservedSingletons = ["ASXL2", "CBFB", "SH2B3", "BCORL1"];
 
 var vafRange = d3.scale.linear()
     .domain([0,100])
@@ -113,7 +113,7 @@ for (i=0; i<=numTicksVaf; i++) {
     sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
 }
 
-d3.csv("samples-data-6.csv", function(error, data) {
+d3.csv("samples-data-8.csv", function(error, data) {
     var dataGroups;
 
     // groupBy gene name (using notAML as the gene name for genes in the notAML group)
@@ -130,7 +130,7 @@ d3.csv("samples-data-6.csv", function(error, data) {
 
     // move singletons to their own group
     var singletonGroupArray = _.remove(dataGroups, function(group) {
-        return group.length == 1 && _.contains(conservedSingltons, group[0].GENE);
+        return group.length == 1 && _.contains(conservedSingletons, group[0].GENE);
     });
 
     console.log("dataGroups before:");
@@ -149,9 +149,6 @@ d3.csv("samples-data-6.csv", function(error, data) {
             notAMLg.push(group[0]);
         }
     });
-
-    console.log("dataGroups after:");
-    console.dir(dataGroups);
 
     // convert from array of arrays of objects to array of objects
     var singletonGroup = [];
@@ -175,18 +172,25 @@ d3.csv("samples-data-6.csv", function(error, data) {
     console.log("notAML group:" );
     console.log(_.map(notAMLgroup[0], function(s) { return s.GENE }).sort().join(" "));
 
-    // sort each group by age
+    avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
+    console.log("avgAge: " + avgAge);
+
+    // sort each group by age, replacing null AGE values with
     dataGroups = _.map(dataGroups, function(group){
-        return _.sortBy(group, "AGE");
+        return _.sortBy(group, function(sample) {
+            if (sample.AGE == "null") {
+                return avgAge;
+            } else {
+                return sample.AGE;
+            }
+
+        });
     });
 
     // concat all groups into one data array
     data = data.concat.apply([], dataGroups);
 
     var legendItems = _.uniq(_.pluck(data, "GENE")).sort();
-
-    avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
-    console.log("avgAge: " + avgAge);
 
     // set up color palettes
     var ageColor = d3.scale.category20();
