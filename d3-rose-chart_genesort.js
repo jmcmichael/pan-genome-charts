@@ -18,7 +18,7 @@ var width = 950,
     sdat = [],
     sdatVaf = [];
 
-var conservedSingletons = ["ASXL2", "CBFB", "SH2B3", "BCORL1"];
+var conservedSingletons = ["ASXL2", "CBFB", "SH2B3", "BCORL1", "SF1", "SETBP1", "CBL"];
 
 var vafRange = d3.scale.linear()
     .domain([0,100])

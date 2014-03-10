@@ -110,22 +110,16 @@ d3.csv("samples-data-8.csv", function(error, data) {
     // sort by case, this will place all doubled samples together
     data = _.sortBy(data, "CASE");
 
-    // console.log(_.pluck(data, "CASE"));
-
     // reject sample with CASE identical to the previous sample, thus eliminating doubles
     data = _.reject(data, function(sample, index) {
-        if (index == 0) {        // skip the first sample
-            return false;
-        }
+        if (index == 0) { return false; } // skip the first sample
         return sample.CASE == data[index-1].CASE;
     });
-
-    // console.log(_.pluck(data, "CASE"));
 
     // sort by age
     data = _.sortBy(data, 'AGE');
 
-    // group by age
+    // create age groups
     dataGroups = _.groupBy(data, function (sample) {
         rangeUpper = _.find(ageRanges, function(age) {
             return sample.AGE < age;
