@@ -113,7 +113,7 @@ for (i=0; i<=numTicksVaf; i++) {
     sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
 }
 
-d3.csv("samples-data-8.csv", function(error, data) {
+d3.csv("GP-77_samples-data-9.csv", function(error, data) {
     var dataGroups;
 
     // groupBy gene name (using notAML as the gene name for genes in the notAML group)
