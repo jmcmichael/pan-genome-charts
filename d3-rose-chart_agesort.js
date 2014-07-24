@@ -98,7 +98,7 @@ for (i=0; i<=numTicksVaf; i++) {
     sdatVaf[i] = cancerTypeInnerRadius + (((cancerTypeOuterRadius- cancerTypeInnerRadius)/numTicksVaf) * i);
 }
 
-d3.csv("GP-77_samples-data-9.csv", function(error, data) {
+d3.csv("GP-77_samples-data-10.csv", function(error, data) {
     var dataGroups;
     var ageRanges = _.range(0, 100, 10);
     var avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
