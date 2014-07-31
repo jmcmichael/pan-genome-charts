@@ -18,7 +18,7 @@ var width = 950,
     sdat = [],
     sdatVaf = [];
 
-var conservedSingletons = ["ASXL2", "CBFB", "SH2B3", "BCORL1", "SF1", "SETBP1", "CBL"];
+var conservedSingletons = ["ASXL2", "AXL", "CBL", "CDKN2A", "CREBBP", "IDH2", "MYLK", "SETBP1", "SF1", "SH2B3", "ZRSR2"];
 
 var vafRange = d3.scale.linear()
     .domain([0,100])
@@ -42,17 +42,17 @@ var ageRange = d3.scale.linear()
 
 var ageArc = d3.svg.arc()
     .outerRadius(function(d) {
-        var age = d.data.AGE == "null" ? avgAge : d.data.AGE;
-        return ageRange(age);
+      var age = d.data.AGE == "null" ? avgAge : d.data.AGE;
+      return ageRange(age);
     })
     .innerRadius(ageInnerRadius);
 
 var ageAxisArc = d3.svg.arc()
     .outerRadius(function(d) {
-        return d + .5;
+      return d + .5;
     })
     .innerRadius(function(d) {
-        return d - .5;
+      return d - .5;
     })
     .startAngle(startAngle)
     .endAngle(endAngle);
@@ -67,7 +67,7 @@ var pie = d3.layout.pie()
 var pieGroups = d3.layout.pie()
     .sort(null)
     .value(function(d) {
-        return d.length;
+      return d.length;
     })
     .startAngle(startAngle)
     .endAngle(endAngle);
@@ -96,249 +96,253 @@ var tipAge = d3.tip()
     .attr('class', 'd3-tip')
     .direction("center")
     .html(function(d) {
-        return "<strong>CASE:</strong> <span style='color:red'>" + d.data.CASE + "</span><br/>" +
-            "<strong>AGE:</strong> <span style='color: red;'>" + d.data.AGE + "</span><br/>" +
-            "<strong>NORMAL VAF:</strong> <span style='color: red;'>" + d.data.NORMAL_VAF + "</span><br/>" +
-            "<strong>GENE:</strong> <span style='color: red;'>" + d.data.GENE + "</span>";
+      return "<strong>CASE:</strong> <span style='color:red'>" + d.data.CASE + "</span><br/>" +
+          "<strong>AGE:</strong> <span style='color: red;'>" + d.data.AGE + "</span><br/>" +
+          "<strong>NORMAL VAF:</strong> <span style='color: red;'>" + d.data.NORMAL_VAF + "</span><br/>" +
+          "<strong>GENE:</strong> <span style='color: red;'>" + d.data.GENE + "</span>";
     });
 
 svg.call(tipAge);
 
 // set up tick positions (this can probably be done more elegantly...)
 for (i=0; i<=numTicksAge; i++) {
-    sdat[i] = ageInnerRadius + (((radius - ageInnerRadius)/numTicksAge) * i);
+  sdat[i] = ageInnerRadius + (((radius - ageInnerRadius)/numTicksAge) * i);
 }
 
 for (i=0; i<=numTicksVaf; i++) {
-    sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
+  sdatVaf[i] = vafInnerRadius + (((vafOuterRadius- vafInnerRadius)/numTicksVaf) * i);
 }
 
-d3.csv("GP-77_samples-data-11.csv", function(error, data) {
-    var dataGroups;
+d3.csv("GP-77_samples-data-14.csv", function(error, data) {
+  var dataGroups;
 
-    // groupBy gene name (using notAML as the gene name for genes in the notAML group)
-    dataGroups = _.groupBy(data, function (sample) {
-        if (sample.GROUP == "AML") {
-            return sample.GENE;
+  // groupBy gene name (using notAML as the gene name for genes in the notAML group)
+  dataGroups = _.groupBy(data, function (sample) {
+    if (sample.GROUP == "AML") {
+      return sample.GENE;
+    } else {
+      return "notAML";
+    }
+  });
+
+  // sort dataGroups by sample count in each group, descending
+  dataGroups = _.chain(dataGroups)
+      //.sortBy(function(group) { return group[0]['GENE']; })
+      .sortBy(function(group) { return group.length; })
+      .reverse()
+      .value();
+
+  // move singletons to their own group
+  var singletonGroupArray = _.remove(dataGroups, function(group) {
+    return group.length == 1 && _.contains(conservedSingletons, group[0].GENE);
+  });
+
+  console.log("dataGroups before:");
+  console.dir(dataGroups);
+
+  var notAMLg = dataGroups[_.findIndex(dataGroups, function(group) {
+    return _.every(group, function(sample) {
+      return sample.GROUP == "notAML";
+    });
+  })];
+
+  // tag the remainder of the singletons as notAML and move to the notAML group
+  _.forEach(dataGroups, function(group) {
+    if (group.length == 1) {
+      group[0].GROUP = "notAML";
+      notAMLg.push(group[0]);
+    }
+  });
+
+  // convert from array of arrays of objects to array of objects
+  var singletonGroup = [];
+  _.forEach(singletonGroupArray, function(array) {
+    singletonGroup.push(array[0]);
+  });
+
+  singletonGroup = _.sortBy(singletonGroup, "AGE");
+  dataGroups.push(singletonGroup);
+
+  // move notAML group to the end
+  var notAMLgroup = _.remove(dataGroups, function(group) {
+    if (_.every(group, function(sample) { return sample.GROUP == "notAML"; })) {
+      return true;
+    }
+  });
+
+  dataGroups.push(notAMLgroup[0]);
+
+  // get a list of non-aml genes for use in constructing the key
+  console.log("notAML group:" );
+  console.log(_.map(notAMLgroup[0], function(s) { return s.GENE }).sort().join(" "));
+
+  avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
+  console.log("avgAge: " + avgAge);
+
+  // sort each group by age, replacing null AGE values with
+  dataGroups = _.map(dataGroups, function(group){
+    return _.sortBy(group, function(sample) {
+      if (sample.AGE == "null") {
+        return avgAge;
+      } else {
+        return sample.AGE;
+      }
+
+    });
+  });
+
+  // concat all groups into one data array
+  data = data.concat.apply([], dataGroups);
+
+  var legendItems = _.uniq(_.pluck(data, "GENE")).sort();
+
+  // set up color palettes
+  var ageColor = d3.scale.category20();
+  var notAMLcolor = d3.scale.linear().domain([0, notAMLg.length]).range(["#000000","#EFEFEF"]);
+
+  // draw age rose chart
+  var gAge = svg.append("g")
+      .attr("id", "gAge");
+
+  var ga = gAge.selectAll(".arc")
+      .data(pie(data))
+      .enter().append("g");
+
+  ga.append("path")
+      .attr("d", ageArc)
+      .attr("data-legend", function(d) {
+        if (d.data.GROUP == "notAML") {
+          return "notAML"
         } else {
-            return "notAML";
+          return d.data.GENE
         }
-    });
-
-    // sort dataGroups by sample count in each group, descending
-    dataGroups = _.sortBy(dataGroups, function(group) { return group.length; }).reverse();
-
-    // move singletons to their own group
-    var singletonGroupArray = _.remove(dataGroups, function(group) {
-        return group.length == 1 && _.contains(conservedSingletons, group[0].GENE);
-    });
-
-    console.log("dataGroups before:");
-    console.dir(dataGroups);
-
-    var notAMLg = dataGroups[_.findIndex(dataGroups, function(group) {
-        return _.every(group, function(sample) {
-            return sample.GROUP == "notAML";
-        });
-    })];
-
-    // tag the remainder of the singletons as notAML and move to the notAML group
-    _.forEach(dataGroups, function(group) {
-        if (group.length == 1) {
-            group[0].GROUP = "notAML";
-            notAMLg.push(group[0]);
+      })
+      .attr("data-legend-pos", function(d) { return legendItems.indexOf(d.data.GENE)})
+      .style("fill", function(d) {
+        if (d.data.GROUP == "notAML") {
+          return notAMLcolor(_.indexOf(notAMLg, d.data));
+        } else {
+          return ageColor(d.data.GENE);
         }
-    });
-
-    // convert from array of arrays of objects to array of objects
-    var singletonGroup = [];
-    _.forEach(singletonGroupArray, function(array) {
-        singletonGroup.push(array[0]);
-    });
-
-    singletonGroup = _.sortBy(singletonGroup, "AGE");
-    dataGroups.push(singletonGroup);
-
-    // move notAML group to the end
-    var notAMLgroup = _.remove(dataGroups, function(group) {
-        if (_.every(group, function(sample) { return sample.GROUP == "notAML"; })) {
-            return true;
+      })
+      .style("stroke", function(d) {
+        if (d.data.CASE.substr(-3) == "dbl") {
+          return "#0F0";
+        } else if (d.data.AGE == "null") {
+          return "#00F";
+        } else {
+          return "#FFF";
         }
-    });
+      })
+      .style("stroke-width", function(d) {
+        return d.data.AGE == "null" ? 1 : 1;
+      })
+      .on('mouseover', tipAge.show)
+      .on('mouseout', tipAge.hide);
 
-    dataGroups.push(notAMLgroup[0]);
+  // draw VAF rose chart
+  var gVaf = svg.append("g")
+      .attr("id", "gVaf");
 
-    // get a list of non-aml genes for use in constructing the key
-    console.log("notAML group:" );
-    console.log(_.map(notAMLgroup[0], function(s) { return s.GENE }).sort().join(" "));
+  var gVaf1 = svg.append("g")
+      .attr("id", "gVaf1");
 
-    avgAge = Math.round(d3.mean(_.pluck(data, "AGE")));
-    console.log("avgAge: " + avgAge);
+  var gVaf2 = svg.append("g")
+      .attr("id", "gVaf2");
 
-    // sort each group by age, replacing null AGE values with
-    dataGroups = _.map(dataGroups, function(group){
-        return _.sortBy(group, function(sample) {
-            if (sample.AGE == "null") {
-                return avgAge;
-            } else {
-                return sample.AGE;
-            }
+  // vaf pie bg
+  var gvbg = gVaf1.selectAll(".arc")
+      .data(pie(data))
+      .enter().append("g");
 
-        });
-    });
+  gvbg.append("path")
+      .attr("d", vafArcBg)
+      .style("fill", "#EEE")
+      .style("stroke", "#FFF")
+      .style("stroke-width", 1);
 
-    // concat all groups into one data array
-    data = data.concat.apply([], dataGroups);
+  // vaf pie
+  var gv = gVaf2.selectAll(".arc")
+      .data(pie(data))
+      .enter().append("g");
 
-    var legendItems = _.uniq(_.pluck(data, "GENE")).sort();
+  gv.append("path")
+      .attr("d", vafArc)
+      .style("fill", "#AAA")
+      .style("stroke", "#FFF")
+      .style("stroke-width", 1);
 
-    // set up color palettes
-    var ageColor = d3.scale.category20();
-    var notAMLcolor = d3.scale.linear().domain([0, notAMLg.length]).range(["#000000","#EFEFEF"]);
+  // draw gene group label arcs
+  var gLabels= svg.append("g")
+      .attr("id", "gLabels");
 
-    // draw age rose chart
-    var gAge = svg.append("g")
-        .attr("id", "gAge");
+  var gl = gLabels.selectAll(".arc")
+      .data(pieGroups(dataGroups))
+      .enter().append("g");
 
-    var ga = gAge.selectAll(".arc")
-        .data(pie(data))
-        .enter().append("g");
+  gl.append("path")
+      .attr("d", labelArc)
+      .style("fill", function(d) {
+        return ageColor(d.data[0].GENE)
+      })
+      .style("stroke", "#FFF")
+      .style("stroke-width", 1);
 
-    ga.append("path")
-        .attr("d", ageArc)
-        .attr("data-legend", function(d) {
-            if (d.data.GROUP == "notAML") {
-                return "notAML"
-            } else {
-                return d.data.GENE
-            }
-        })
-        .attr("data-legend-pos", function(d) { return legendItems.indexOf(d.data.GENE)})
-        .style("fill", function(d) {
-            if (d.data.GROUP == "notAML") {
-                return notAMLcolor(_.indexOf(notAMLg, d.data));
-            } else {
-                return ageColor(d.data.GENE);
-            }
-        })
-        .style("stroke", function(d) {
-            if (d.data.CASE.substr(-3) == "dbl") {
-                return "#0F0";
-            } else if (d.data.AGE == "null") {
-                return "#00F";
-            } else {
-                return "#FFF";
-            }
-        })
-        .style("stroke-width", function(d) {
-            return d.data.AGE == "null" ? 1 : 1;
-        })
-        .on('mouseover', tipAge.show)
-        .on('mouseout', tipAge.hide);
-
-    // draw VAF rose chart
-    var gVaf = svg.append("g")
-        .attr("id", "gVaf");
-
-    var gVaf1 = svg.append("g")
-        .attr("id", "gVaf1");
-
-    var gVaf2 = svg.append("g")
-        .attr("id", "gVaf2");
-
-    // vaf pie bg
-    var gvbg = gVaf1.selectAll(".arc")
-        .data(pie(data))
-        .enter().append("g");
-
-    gvbg.append("path")
-        .attr("d", vafArcBg)
-        .style("fill", "#EEE")
-        .style("stroke", "#FFF")
-        .style("stroke-width", 1);
-
-    // vaf pie
-    var gv = gVaf2.selectAll(".arc")
-        .data(pie(data))
-        .enter().append("g");
-
-    gv.append("path")
-        .attr("d", vafArc)
-        .style("fill", "#AAA")
-        .style("stroke", "#FFF")
-        .style("stroke-width", 1);
-
-    // draw gene group label arcs
-    var gLabels= svg.append("g")
-        .attr("id", "gLabels");
-
-    var gl = gLabels.selectAll(".arc")
-        .data(pieGroups(dataGroups))
-        .enter().append("g");
-
-    gl.append("path")
-        .attr("d", labelArc)
-        .style("fill", function(d) {
-            return ageColor(d.data[0].GENE)
-        })
-        .style("stroke", "#FFF")
-        .style("stroke-width", 1);
-
-    addAgeCircleAxes();
-    addVafCircleAxes();
-    addLegend();
+  addAgeCircleAxes();
+  addVafCircleAxes();
+  addLegend();
 });
 
 addAgeCircleAxes = function() {
-    var circleAxes, i;
+  var circleAxes, i;
 
-    svg.selectAll('.circle-ticks').remove();
+  svg.selectAll('.circle-ticks').remove();
 
-    circleAxes = svg.selectAll('.circle-ticks')
-        .data(sdat)
-        .enter().append('svg:g')
-        .attr("class", "circle-ticks");
+  circleAxes = svg.selectAll('.circle-ticks')
+      .data(sdat)
+      .enter().append('svg:g')
+      .attr("class", "circle-ticks");
 
-    circleAxes.append("path")
-        .attr("d", ageAxisArc)
-        .style("fill", axisStrokeColor);
+  circleAxes.append("path")
+      .attr("d", ageAxisArc)
+      .style("fill", axisStrokeColor);
 
-    circleAxes.append("svg:text")
-        .attr("text-anchor", "center")
-        .attr("font-size", "14px")
-        .attr("font-weight", "bold")
-        .attr("dy", function(d) { return d + 15 })
-        .style("fill", "#333")
-        .text(function(d,i) { return i * (100/numTicksAge) });
+  circleAxes.append("svg:text")
+      .attr("text-anchor", "center")
+      .attr("font-size", "14px")
+      .attr("font-weight", "bold")
+      .attr("dy", function(d) { return d + 15 })
+      .style("fill", "#333")
+      .text(function(d,i) { return i * (100/numTicksAge) });
 };
 
 addVafCircleAxes = function() {
-    var circleAxes, i;
+  var circleAxes, i;
 
-    svg.selectAll('.circle-ticks-vaf').remove();
+  svg.selectAll('.circle-ticks-vaf').remove();
 
-    circleAxes = svg.selectAll('.circle-ticks-vaf')
-        .data(sdatVaf)
-        .enter().append('svg:g')
-        .attr("class", "circle-ticks-vaf");
+  circleAxes = svg.selectAll('.circle-ticks-vaf')
+      .data(sdatVaf)
+      .enter().append('svg:g')
+      .attr("class", "circle-ticks-vaf");
 
-    circleAxes.append("path")
-        .attr("d", ageAxisArc)
-        .style("fill", axisStrokeColor);
+  circleAxes.append("path")
+      .attr("d", ageAxisArc)
+      .style("fill", axisStrokeColor);
 
-    circleAxes.append("svg:text")
-        .attr("text-anchor", "start")
-        .attr("font-size", "8px")
-        .attr("font-weight", "bold")
-        .attr("dy", function(d) { return d + 15 })
-        .style("fill", "#333")
-        .text(function(d,i) { return i * (100/numTicksVaf) });
+  circleAxes.append("svg:text")
+      .attr("text-anchor", "start")
+      .attr("font-size", "8px")
+      .attr("font-weight", "bold")
+      .attr("dy", function(d) { return d + 15 })
+      .style("fill", "#333")
+      .text(function(d,i) { return i * (100/numTicksVaf) });
 };
 
 addLegend = function() {
-    svg.append("g")
-        .attr("class","legend")
-        .attr("transform","translate(400,225)")
-        .style("font-size","12px")
-        .call(d3.legend);
+  svg.append("g")
+      .attr("class","legend")
+      .attr("transform","translate(400,225)")
+      .style("font-size","12px")
+      .call(d3.legend);
 };
