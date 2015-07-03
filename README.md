@@ -11,6 +11,7 @@ python -m SimpleHTTPServer
 After the webserver boots up, load these links in a browser:
 
 [http://localhost:8000/index.html](http://localhost:8000/index.html)
+
 [http://localhost:8000/index2.html](http://localhost:8000/index2.html)
 
 The scripts generate the underlying vector shapes and lines for the charts, then saved as an SVG using SVG Crowbar. Some color adjustments and the cancer group labels were added in Illustrator.
