@@ -1,6 +1,4 @@
 # pan-genome-charts
-charts for the pan genome paper
-
 Scripts for generating Figure 1 in [Age-related mutations associated with clonal hematopoietic expansion and malignancies](http://www-ncbi-nlm-nih-gov.libproxy.wustl.edu/pubmed/25326804).
 
 Uses d3. Run the Python SimpleHTTPServer in the repository root directory and load index.html for Panel A, and index2.html for Panel B.
